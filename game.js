@@ -52,6 +52,56 @@ class SoundManager {
 
 const sounds = new SoundManager();
 
+// --- GERADOR PROCEDURAL DE TEXTURA SCI-FI EM RUNTIME (Evita CORS e 404) ---
+function createProceduralTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+
+  // Cor base do painel de metal escuro
+  ctx.fillStyle = '#111726';
+  ctx.fillRect(0, 0, 512, 512);
+
+  // Placas de metal / Grid Sci-Fi
+  ctx.strokeStyle = '#1b253a';
+  ctx.lineWidth = 6;
+  for (let i = 0; i < 512; i += 64) {
+    ctx.strokeRect(i, i, 512 - i, 512 - i);
+    ctx.strokeRect(0, 0, i, i);
+  }
+
+  // Adicionar parafusos metálicos nos cantos
+  ctx.fillStyle = '#2d3b59';
+  for (let x = 32; x < 512; x += 64) {
+    for (let y = 32; y < 512; y += 64) {
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Linhas de energia neon brilhantes
+  ctx.strokeStyle = '#00f0ff';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, 256);
+  ctx.lineTo(128, 256);
+  ctx.lineTo(192, 320);
+  ctx.lineTo(512, 320);
+  ctx.stroke();
+
+  ctx.strokeStyle = '#ff6600';
+  ctx.beginPath();
+  ctx.moveTo(0, 128);
+  ctx.lineTo(256, 128);
+  ctx.lineTo(320, 64);
+  ctx.lineTo(512, 64);
+  ctx.stroke();
+
+  return new THREE.CanvasTexture(canvas);
+}
+
 // --- QUESTÕES EXATAS DE FRAÇÃO DA IMAGEM ---
 const MathQuestions = [
   // Quarto 1: Adição de Frações
@@ -233,8 +283,8 @@ function init3D() {
 
 // Criar 5 Quartos Espaciais Consecutivos
 function buildSpaceshipMap() {
-  const textureLoader = new THREE.TextureLoader();
-  const metalTexture = textureLoader.load('hull_texture.jpg');
+  // Gerar textura procedural para evitar problemas de CORS no arquivo local
+  const metalTexture = createProceduralTexture();
   metalTexture.wrapS = THREE.RepeatWrapping;
   metalTexture.wrapT = THREE.RepeatWrapping;
   metalTexture.repeat.set(5, 5);
@@ -349,8 +399,8 @@ function buildSpaceshipMap() {
     });
   });
 
-  // Avatar do Parceiro
-  const avatarGeo = new THREE.CapsuleGeometry(0.35, 1.1, 8, 16);
+  // Avatar do Parceiro - Substituído CapsuleGeometry por CylinderGeometry para compatibilidade no R128
+  const avatarGeo = new THREE.CylinderGeometry(0.35, 0.35, 1.4, 16);
   const avatarMat = new THREE.MeshStandardMaterial({ color: 0xff6600, metalness: 0.6, roughness: 0.3 });
   gameState.remotePlayerMesh = new THREE.Mesh(avatarGeo, avatarMat);
   gameState.remotePlayerMesh.position.set(0, -100, 0); // fora da cena inicialmente
