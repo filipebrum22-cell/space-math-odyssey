@@ -52,51 +52,45 @@ class SoundManager {
 
 const sounds = new SoundManager();
 
-// --- GERADOR PROCEDURAL DE TEXTURA SCI-FI EM RUNTIME (Evita CORS e 404) ---
+// --- GERADOR PROCEDURAL DE TEXTURA SCI-FI EM RUNTIME (Visual Metálico Refinado) ---
 function createProceduralTexture() {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 512;
   const ctx = canvas.getContext('2d');
 
-  // Cor base do painel de metal escuro
-  ctx.fillStyle = '#111726';
+  // Cor base do painel de metal escuro reflexivo
+  ctx.fillStyle = '#1b2336';
   ctx.fillRect(0, 0, 512, 512);
 
-  // Placas de metal / Grid Sci-Fi
-  ctx.strokeStyle = '#1b253a';
-  ctx.lineWidth = 6;
-  for (let i = 0; i < 512; i += 64) {
-    ctx.strokeRect(i, i, 512 - i, 512 - i);
-    ctx.strokeRect(0, 0, i, i);
-  }
+  // Placas de metal / Bordas Sci-Fi
+  ctx.strokeStyle = '#2d3b59';
+  ctx.lineWidth = 8;
+  ctx.strokeRect(0, 0, 512, 512);
+  
+  // Placas internas menores
+  ctx.strokeStyle = '#121824';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(32, 32, 448, 448);
+  ctx.strokeRect(96, 96, 320, 320);
 
-  // Adicionar parafusos metálicos nos cantos
-  ctx.fillStyle = '#2d3b59';
-  for (let x = 32; x < 512; x += 64) {
-    for (let y = 32; y < 512; y += 64) {
+  // Detalhes de parafusos
+  ctx.fillStyle = '#425885';
+  const boltPositions = [20, 492];
+  boltPositions.forEach(x => {
+    boltPositions.forEach(y => {
       ctx.beginPath();
-      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
       ctx.fill();
-    }
-  }
+    });
+  });
 
-  // Linhas de energia neon brilhantes
+  // Linhas neon de alta tecnologia integradas na textura
   ctx.strokeStyle = '#00f0ff';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(0, 256);
-  ctx.lineTo(128, 256);
-  ctx.lineTo(192, 320);
-  ctx.lineTo(512, 320);
-  ctx.stroke();
-
-  ctx.strokeStyle = '#ff6600';
-  ctx.beginPath();
-  ctx.moveTo(0, 128);
-  ctx.lineTo(256, 128);
-  ctx.lineTo(320, 64);
-  ctx.lineTo(512, 64);
+  ctx.moveTo(32, 256);
+  ctx.lineTo(480, 256);
   ctx.stroke();
 
   return new THREE.CanvasTexture(canvas);
@@ -141,7 +135,7 @@ const gameState = {
   isGameStarted: false,
   unlockedDoors: [false, false, false, false, false],
   currentActiveTerminal: null,
-  currentQuestionIndex: 0, // Índice da pergunta do terminal (0 a 2)
+  currentQuestionIndex: 0, 
   isMultiplayer: false,
   peer: null,
   conn: null,
@@ -152,12 +146,13 @@ const gameState = {
 
 // --- CONFIGURAÇÃO THREE.JS 3D ---
 let scene, camera, renderer;
-let playerPosition = new THREE.Vector3(0, 1.6, 25); // Posição de início recuada
+let playerPosition = new THREE.Vector3(0, 1.6, 25); 
 let playerRotation = { yaw: 0, pitch: 0 };
 let doorsList = [];
 let terminalsList = [];
+let starParticles; // Sistema de estrelas dinâmico
 
-// Gerenciar Menu e Modos de Configuração
+// Gerenciar Menu
 const btnSolo = document.getElementById('btn-mode-solo');
 const btnMulti = document.getElementById('btn-mode-multi');
 const multiOptions = document.getElementById('multiplayer-options');
@@ -231,7 +226,6 @@ btnStart.addEventListener('click', () => {
   gameState.nickname = document.getElementById('player-nickname').value || "Astronauta";
 
   if (gameState.isMultiplayer && gameState.conn && gameState.conn.open) {
-    // Notificar o parceiro para começar o jogo também
     gameState.conn.send({ type: 'START_GAME' });
   }
   enterGameWorld();
@@ -241,7 +235,6 @@ function enterGameWorld() {
   document.getElementById('config-screen').classList.add('hidden');
   gameState.isGameStarted = true;
 
-  // Iniciar Pointer Lock para FPS
   setTimeout(() => {
     document.body.requestPointerLock();
   }, 100);
@@ -253,8 +246,8 @@ function enterGameWorld() {
 function init3D() {
   const container = document.getElementById('canvas-container');
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x030611);
-  scene.fog = new THREE.FogExp2(0x030611, 0.03);
+  scene.background = new THREE.Color(0x010307);
+  scene.fog = new THREE.FogExp2(0x010307, 0.02);
 
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.copy(playerPosition);
@@ -266,50 +259,55 @@ function init3D() {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   container.appendChild(renderer.domElement);
 
-  // Luzes
-  const ambientLight = new THREE.AmbientLight(0x111b2c, 1.5);
+  // --- AMBIENTE MAIS ILUMINADO E BRILHANTE ---
+  const ambientLight = new THREE.AmbientLight(0x425885, 2.2); // Intensidade e iluminação ambiente superior
   scene.add(ambientLight);
 
-  const dirLight = new THREE.DirectionalLight(0x00f0ff, 0.9);
-  dirLight.position.set(5, 20, 15);
-  scene.add(dirLight);
+  const mainLight = new THREE.DirectionalLight(0xffffff, 1.8); // Luz direcional potente branca
+  mainLight.position.set(10, 25, 20);
+  scene.add(mainLight);
+
+  const neonLightBlue = new THREE.DirectionalLight(0x00f0ff, 1.2); // Tons neon azuis reflexivos
+  neonLightBlue.position.set(-10, 5, -30);
+  scene.add(neonLightBlue);
 
   buildSpaceshipMap();
+  createOuterSpace(); // Espaço sideral e estrelas 3D
 
   window.addEventListener('resize', onWindowResize);
 
   animate();
 }
 
-// Criar 5 Quartos Espaciais Consecutivos
+// Criar 5 Quartos Espaciais Consecutivos com Design de Metal Sci-Fi e Aberturas
 function buildSpaceshipMap() {
-  // Gerar textura procedural para evitar problemas de CORS no arquivo local
   const metalTexture = createProceduralTexture();
   metalTexture.wrapS = THREE.RepeatWrapping;
   metalTexture.wrapT = THREE.RepeatWrapping;
-  metalTexture.repeat.set(5, 5);
+  metalTexture.repeat.set(1, 1);
 
+  // Material de Metal da Nave Altamente Reflexivo
   const wallMaterial = new THREE.MeshStandardMaterial({
     map: metalTexture,
-    metalness: 0.85,
-    roughness: 0.25
+    metalness: 0.95,
+    roughness: 0.15
   });
 
   const floorMaterial = new THREE.MeshStandardMaterial({
-    color: 0x070e20,
+    color: 0x1f2c42,
     metalness: 0.9,
     roughness: 0.2
   });
 
   const ceilingMaterial = new THREE.MeshStandardMaterial({
-    color: 0x040815,
-    metalness: 0.7,
-    roughness: 0.4
+    color: 0x0f1624,
+    metalness: 0.8,
+    roughness: 0.3
   });
 
   const corridorWidth = 6;
   const corridorHeight = 4;
-  const totalLength = 110; // Corredor estendido para 5 quartos
+  const totalLength = 110; 
 
   // Chão e Teto
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(corridorWidth, totalLength), floorMaterial);
@@ -322,18 +320,69 @@ function buildSpaceshipMap() {
   ceiling.position.set(0, corridorHeight, -30);
   scene.add(ceiling);
 
-  // Paredes
-  const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(totalLength, corridorHeight), wallMaterial);
-  leftWall.rotation.y = Math.PI / 2;
-  leftWall.position.set(-corridorWidth / 2, corridorHeight / 2, -30);
-  scene.add(leftWall);
+  // Construir paredes laterais estruturadas com vãos para as janelas
+  // Em vez de paredes inteiriças, criamos seções sólidas com aberturas de janelas
+  const wallSegmentGeo = new THREE.PlaneGeometry(10, corridorHeight);
+  
+  for (let z = 25; z >= -85; z -= 15) {
+    // Paredes Esquerda e Direita Sólidas
+    const segLeft = new THREE.Mesh(wallSegmentGeo, wallMaterial);
+    segLeft.rotation.y = Math.PI / 2;
+    segLeft.position.set(-corridorWidth / 2, corridorHeight / 2, z);
+    scene.add(segLeft);
 
-  const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(totalLength, corridorHeight), wallMaterial);
-  rightWall.rotation.y = -Math.PI / 2;
-  rightWall.position.set(corridorWidth / 2, corridorHeight / 2, -30);
-  scene.add(rightWall);
+    const segRight = new THREE.Mesh(wallSegmentGeo, wallMaterial);
+    segRight.rotation.y = -Math.PI / 2;
+    segRight.position.set(corridorWidth / 2, corridorHeight / 2, z);
+    scene.add(segRight);
 
-  createSpaceWindows();
+    // Janelas transparentes localizadas entre as seções de paredes
+    const winZ = z - 7.5;
+    
+    // Vidro da Janela (Ciano semitransparente com alto brilho/reflexão)
+    const windowMat = new THREE.MeshStandardMaterial({
+      color: 0x00f0ff,
+      transparent: true,
+      opacity: 0.18,
+      metalness: 0.95,
+      roughness: 0.05
+    });
+
+    const windowGeo = new THREE.PlaneGeometry(5, corridorHeight - 0.8);
+
+    const winLeft = new THREE.Mesh(windowGeo, windowMat);
+    winLeft.rotation.y = Math.PI / 2;
+    winLeft.position.set(-corridorWidth / 2 + 0.02, corridorHeight / 2, winZ);
+    scene.add(winLeft);
+
+    const winRight = new THREE.Mesh(windowGeo, windowMat);
+    winRight.rotation.y = -Math.PI / 2;
+    winRight.position.set(corridorWidth / 2 - 0.02, corridorHeight / 2, winZ);
+    scene.add(winRight);
+
+    // Moldura das Janelas (Aço escuro)
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0x0a0f1d, metalness: 0.9 });
+    const topFrameGeo = new THREE.BoxGeometry(0.1, 0.2, 5);
+    const sideFrameGeo = new THREE.BoxGeometry(0.1, corridorHeight - 0.8, 0.2);
+
+    // Moldura Esquerda
+    const frameLeftTop = new THREE.Mesh(topFrameGeo, frameMat);
+    frameLeftTop.position.set(-corridorWidth / 2 + 0.01, corridorHeight - 0.4, winZ);
+    scene.add(frameLeftTop);
+
+    const frameLeftBot = new THREE.Mesh(topFrameGeo, frameMat);
+    frameLeftBot.position.set(-corridorWidth / 2 + 0.01, 0.4, winZ);
+    scene.add(frameLeftBot);
+
+    // Moldura Direita
+    const frameRightTop = new THREE.Mesh(topFrameGeo, frameMat);
+    frameRightTop.position.set(corridorWidth / 2 - 0.01, corridorHeight - 0.4, winZ);
+    scene.add(frameRightTop);
+
+    const frameRightBot = new THREE.Mesh(topFrameGeo, frameMat);
+    frameRightBot.position.set(corridorWidth / 2 - 0.01, 0.4, winZ);
+    scene.add(frameRightBot);
+  }
 
   // Posicionamento Z das 5 Portas (Quartos)
   const doorPositionsZ = [15, -5, -25, -45, -65];
@@ -346,19 +395,18 @@ function buildSpaceshipMap() {
   ];
 
   doorPositionsZ.forEach((posZ, index) => {
-    // Grupo da Porta
     const doorGroup = new THREE.Group();
     doorGroup.position.set(0, 0, posZ);
 
     const doorLeft = new THREE.Mesh(
       new THREE.BoxGeometry(corridorWidth / 2, corridorHeight, 0.4),
-      new THREE.MeshStandardMaterial({ color: 0x1a2436, metalness: 0.9, roughness: 0.1 })
+      new THREE.MeshStandardMaterial({ color: 0x22324f, metalness: 0.95, roughness: 0.1 })
     );
     doorLeft.position.set(-corridorWidth / 4, corridorHeight / 2, 0);
 
     const doorRight = new THREE.Mesh(
       new THREE.BoxGeometry(corridorWidth / 2, corridorHeight, 0.4),
-      new THREE.MeshStandardMaterial({ color: 0x1a2436, metalness: 0.9, roughness: 0.1 })
+      new THREE.MeshStandardMaterial({ color: 0x22324f, metalness: 0.95, roughness: 0.1 })
     );
     doorRight.position.set(corridorWidth / 4, corridorHeight / 2, 0);
 
@@ -366,9 +414,14 @@ function buildSpaceshipMap() {
     scene.add(doorGroup);
 
     // Luz da Porta (Neon Vermelho trancado)
-    const doorLight = new THREE.PointLight(0xff2a5f, 1.8, 6);
+    const doorLight = new THREE.PointLight(0xff2a5f, 2.2, 8);
     doorLight.position.set(0, corridorHeight - 0.5, posZ + 0.5);
     scene.add(doorLight);
+
+    // Adicionar luminárias de teto perto de cada porta para maior iluminação
+    const ceilingNeon = new THREE.PointLight(0x00f0ff, 1.8, 10);
+    ceilingNeon.position.set(0, corridorHeight - 0.2, posZ + 4);
+    scene.add(ceilingNeon);
 
     doorsList.push({
       group: doorGroup,
@@ -384,8 +437,8 @@ function buildSpaceshipMap() {
     const terminalMat = new THREE.MeshStandardMaterial({
       color: 0x00f0ff,
       emissive: 0x0088ff,
-      emissiveIntensity: 0.6,
-      roughness: 0.1
+      emissiveIntensity: 0.8,
+      roughness: 0.05
     });
     const terminalMesh = new THREE.Mesh(terminalGeo, terminalMat);
     terminalMesh.position.set(-corridorWidth / 2 + 0.35, 1.4, posZ + 1.5);
@@ -399,29 +452,65 @@ function buildSpaceshipMap() {
     });
   });
 
-  // Avatar do Parceiro - Substituído CapsuleGeometry por CylinderGeometry para compatibilidade no R128
+  // Avatar do Parceiro
   const avatarGeo = new THREE.CylinderGeometry(0.35, 0.35, 1.4, 16);
   const avatarMat = new THREE.MeshStandardMaterial({ color: 0xff6600, metalness: 0.6, roughness: 0.3 });
   gameState.remotePlayerMesh = new THREE.Mesh(avatarGeo, avatarMat);
-  gameState.remotePlayerMesh.position.set(0, -100, 0); // fora da cena inicialmente
+  gameState.remotePlayerMesh.position.set(0, -100, 0);
   scene.add(gameState.remotePlayerMesh);
 }
 
-// Janelas espaciais para o infinito
-function createSpaceWindows() {
-  const windowGeo = new THREE.PlaneGeometry(6, 2.5);
-  const windowMat = new THREE.MeshBasicMaterial({ color: 0x000008 });
+// --- CRIAR ESPAÇO SIDERAL DINÂMICO DO LADO DE FORA ---
+function createOuterSpace() {
+  const particleCount = 2000;
+  const geometry = new THREE.BufferGeometry();
+  const positions = new Float32Array(particleCount * 3);
 
-  for (let z = 20; z >= -75; z -= 18) {
-    const winLeft = new THREE.Mesh(windowGeo, windowMat);
-    winLeft.rotation.y = Math.PI / 2;
-    winLeft.position.set(-2.99, 2, z);
-    scene.add(winLeft);
+  // Dispersar partículas de estrelas ao redor da nave espacial
+  for (let i = 0; i < particleCount * 3; i += 3) {
+    // Afastados lateralmente da nave (X > 5 ou X < -5)
+    positions[i] = (Math.random() - 0.5) * 160 + (Math.random() > 0.5 ? 15 : -15); 
+    positions[i + 1] = (Math.random() - 0.5) * 100;
+    positions[i + 2] = (Math.random() - 0.5) * 200 - 30; // Ao longo do corredor
+  }
 
-    const winRight = new THREE.Mesh(windowGeo, windowMat);
-    winRight.rotation.y = -Math.PI / 2;
-    winRight.position.set(2.99, 2, z);
-    scene.add(winRight);
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+  const material = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 0.35,
+    transparent: true,
+    opacity: 0.95
+  });
+
+  starParticles = new THREE.Points(geometry, material);
+  scene.add(starParticles);
+
+  // Adicionar Planeta gigante flutuando ao longe
+  const planetGeo = new THREE.SphereGeometry(12, 32, 32);
+  const planetMat = new THREE.MeshBasicMaterial({ color: 0x3d0066, wireframe: true });
+  const planet = new THREE.Mesh(planetGeo, planetMat);
+  planet.position.set(40, 10, -50);
+  scene.add(planet);
+
+  const planet2Geo = new THREE.SphereGeometry(6, 32, 32);
+  const planet2Mat = new THREE.MeshBasicMaterial({ color: 0x003366, wireframe: true });
+  const planet2 = new THREE.Mesh(planet2Geo, planet2Mat);
+  planet2.position.set(-45, -15, -30);
+  scene.add(planet2);
+}
+
+// Mover estrelas para simular viagem espacial
+function animateOuterSpace() {
+  if (starParticles) {
+    const positions = starParticles.geometry.attributes.position.array;
+    for (let i = 2; i < positions.length; i += 3) {
+      positions[i] += 0.25; // Velocidade da nave em direção às estrelas
+      if (positions[i] > 40) {
+        positions[i] = -160; // Volta para o fundo
+      }
+    }
+    starParticles.geometry.attributes.position.needsUpdate = true;
   }
 }
 
@@ -488,11 +577,9 @@ function updatePlayerMovement(delta) {
 
   const nextPos = playerPosition.clone().addScaledVector(moveDir, speed);
 
-  // Limites físicos da Nave
   nextPos.x = Math.max(-2.4, Math.min(2.4, nextPos.x));
   nextPos.z = Math.max(-78, Math.min(28, nextPos.z));
 
-  // Impedir passagem por portas fechadas
   let canMoveZ = true;
   doorsList.forEach(door => {
     if (!door.isUnlocked) {
@@ -512,7 +599,6 @@ function updatePlayerMovement(delta) {
   camera.rotation.y = playerRotation.yaw;
   camera.rotation.x = playerRotation.pitch;
 
-  // Transmitir posição
   if (gameState.conn && gameState.conn.open) {
     gameState.conn.send({
       type: 'POS_UPDATE',
@@ -544,13 +630,12 @@ function checkTerminalProximity() {
   }
 }
 
-// Abrir Terminal de Matemática com 3 Desafios
 function checkTerminalInteraction() {
   if (gameState.currentActiveTerminal && !isModalOpen()) {
     sounds.playBeep(900, 'sine', 0.1);
     document.exitPointerLock();
 
-    gameState.currentQuestionIndex = 0; // Inicia na Pergunta 1
+    gameState.currentQuestionIndex = 0; 
     showQuestionInTerminal();
   }
 }
@@ -559,7 +644,6 @@ function showQuestionInTerminal() {
   const term = gameState.currentActiveTerminal;
   const sectorIdx = term.sectorIndex;
   
-  // Obter pergunta do quarto e index correspondente
   const questionObj = MathQuestions[sectorIdx][gameState.currentQuestionIndex];
   
   document.getElementById('terminal-sector-desc').innerText = term.sectorName;
@@ -592,19 +676,16 @@ function submitMathAnswer() {
     return;
   }
 
-  // Comparar como string para aceitar frações perfeitas
   if (ansInput === currentQuestion.a) {
     sounds.playSuccess();
     feedback.innerText = "CORRETO!";
     feedback.style.color = "var(--accent-green)";
 
-    // Passar para a próxima pergunta ou abrir porta
     setTimeout(() => {
       gameState.currentQuestionIndex++;
       if (gameState.currentQuestionIndex < 3) {
         showQuestionInTerminal();
       } else {
-        // Todas as 3 perguntas resolvidas! Destrava a porta
         unlockDoor(sectorIdx);
         
         if (gameState.conn && gameState.conn.open) {
@@ -623,7 +704,6 @@ function submitMathAnswer() {
   }
 }
 
-// Destravar Porta e Transicionar
 function unlockDoor(sectorIdx) {
   const door = doorsList[sectorIdx];
   if (door.isUnlocked) return;
@@ -632,14 +712,12 @@ function unlockDoor(sectorIdx) {
   gameState.unlockedDoors[sectorIdx] = true;
   sounds.playDoorOpen();
 
-  // Alterar neon da porta para Verde
   door.light.color.setHex(0x00ff88);
 
   const count = gameState.unlockedDoors.filter(Boolean).length;
   document.getElementById('doors-unlocked').innerText = `${count} / 5`;
   document.getElementById('current-sector').innerText = `${Math.min(5, sectorIdx + 2)} / 5`;
 
-  // Animar abertura
   let progress = 0;
   const interval = setInterval(() => {
     progress += 0.05;
@@ -650,7 +728,6 @@ function unlockDoor(sectorIdx) {
     }
   }, 25);
 
-  // Checar vitória
   if (count === 5) {
     setTimeout(() => {
       document.exitPointerLock();
@@ -694,6 +771,8 @@ function animate() {
   const delta = clock.getDelta();
 
   updatePlayerMovement(delta);
+  animateOuterSpace(); // Animação de estrelas correndo no espaço
+  
   if (renderer && scene && camera) {
     renderer.render(scene, camera);
   }
