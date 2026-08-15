@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Space Math Odyssey 3D - Escape Ship Multiplayer</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Three.js & PeerJS Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+</head>
+<body>
+
+  <!-- TELA DE CONFIGURAÇÃO INICIAL (MENU PRINCIPAL) -->
+  <div id="config-screen">
+    <div class="stars-bg"></div>
+    <div class="config-card">
+      <h1 class="config-title">🚀 SPACE MATH ODYSSEY</h1>
+      <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem; margin-bottom: 10px;">Configure seu astronauta e modo de jogo antes da decolagem!</p>
+      
+      <!-- Escolha de Apelido -->
+      <div style="text-align: left;">
+        <label style="font-family: var(--font-title); font-size: 0.9rem; color: var(--primary-cyan); display: block; margin-bottom: 6px;">NOME DO ASTRONAUTA:</label>
+        <input type="text" id="player-nickname" class="sci-input" placeholder="ASTRONAUTA" value="Astronauta" style="font-size: 1.1rem; width: 100%; text-align: left; padding: 10px 15px;">
+      </div>
+
+      <!-- Escolha de Modo Solo vs Multiplayer -->
+      <div style="text-align: left; margin-top: 10px;">
+        <label style="font-family: var(--font-title); font-size: 0.9rem; color: var(--primary-cyan); display: block; margin-bottom: 6px;">MODO DE JOGO:</label>
+        <div class="mode-selector">
+          <button id="btn-mode-solo" class="mode-btn active">JOGO SOLO</button>
+          <button id="btn-mode-multi" class="mode-btn">MULTIPLAYER COOP</button>
+        </div>
+      </div>
+
+      <!-- Configurações Adicionais de Multiplayer (Oculto inicialmente) -->
+      <div id="multiplayer-options" class="hidden" style="background: rgba(0, 240, 255, 0.05); border: 1px solid rgba(0,240,255,0.15); border-radius: 12px; padding: 20px; text-align: center;">
+        <div style="margin-bottom: 15px;">
+          <button id="btn-menu-create-room" class="sci-btn orange" style="width: 100%;">CRIAR NOVA SALA</button>
+          <div id="menu-room-info" class="hidden" style="margin-top: 10px;">
+            <p style="font-size: 0.85rem; color: #aaa;">Código da sua sala:</p>
+            <h3 id="menu-room-code" style="color: var(--accent-green); font-size: 1.6rem; font-family: var(--font-title); letter-spacing: 2px;">---</h3>
+            <p style="font-size: 0.8rem; color: var(--primary-cyan); animation: pulse 1.5s infinite;">Aguardando outro astronauta entrar...</p>
+          </div>
+        </div>
+        <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+          <p style="font-size: 0.85rem; color: #aaa; margin-bottom: 10px;">OU ENTRE EM UMA SALA EXISTENTE:</p>
+          <div class="answer-input-group" style="margin-bottom: 0;">
+            <input type="text" id="menu-join-code" class="sci-input" placeholder="CÓDIGO" style="font-size: 1.1rem; text-transform: uppercase;">
+            <button id="btn-menu-join" class="sci-btn">ENTRAR</button>
+          </div>
+          <div id="menu-join-feedback" style="margin-top: 8px; font-size: 0.85rem; font-weight: bold; color: var(--accent-green);"></div>
+        </div>
+      </div>
+
+      <!-- Botão Iniciar Missão -->
+      <button id="btn-start-mission" class="sci-btn" style="padding: 15px; font-size: 1.3rem; margin-top: 15px; background: linear-gradient(135deg, var(--accent-orange), #ff2200); color: #fff;">INICIAR MISSÃO</button>
+    </div>
+  </div>
+
+  <!-- Container Principal 3D Three.js -->
+  <div id="canvas-container"></div>
+
+  <!-- Interface de Usuário (HUD / UI) -->
+  <div id="ui-overlay">
+    <!-- Top HUD Bar -->
+    <header class="hud-header interactive-ui">
+      <div class="hud-title">
+        🚀 SPACE MATH ODYSSEY
+      </div>
+      <div class="hud-stats">
+        <div class="stat-badge">
+          SETOR: <span id="current-sector" class="val">1 / 5</span>
+        </div>
+        <div class="stat-badge">
+          PORTAS: <span id="doors-unlocked" class="val">0 / 5</span>
+        </div>
+        <div id="multiplayer-bar">
+          <div id="room-status" class="room-tag">MODO: SOLO</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mira central do jogador -->
+    <div id="crosshair"></div>
+
+    <!-- Indicador de Interação -->
+    <div id="interaction-prompt">PRESSIONE [E] PARA ACESSAR O HOLO-TERMINAL</div>
+
+    <!-- Dicas de Controle -->
+    <div class="controls-hint interactive-ui">
+      🎮 Controles: <b>W, A, S, D</b> para andar | <b>Mouse</b> para olhar | <b>E</b> para interagir
+    </div>
+  </div>
+
+  <!-- MODAL: Holo-Terminal Matemático -->
+  <div id="math-terminal-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h2 class="modal-title">DESBLOQUEIO DE SEGURANÇA</h2>
+      <p id="terminal-sector-desc" style="color: var(--primary-cyan); font-weight: 600;">TERMINAL DE ACESSO</p>
+      <p id="terminal-question-index" style="color: var(--accent-orange); font-size: 1.1rem; font-weight: 700; margin-top: 5px;">DESAFIO 1 DE 3</p>
+      
+      <div class="question-box" id="question-text">
+        CALCULANDO...
+      </div>
+
+      <div class="answer-input-group">
+        <!-- Input de Texto para aceitar frações com barra '/' e negativos '-' -->
+        <input type="text" id="math-answer-input" class="sci-input" placeholder="SUA RESPOSTA (ex: 395/798)" autofocus>
+        <button id="btn-submit-answer" class="sci-btn orange">ENVIAR</button>
+      </div>
+
+      <!-- Teclado Numérico Sci-Fi com suporte a Fração e Negativo -->
+      <div class="numpad-grid">
+        <button class="num-btn" data-val="1">1</button>
+        <button class="num-btn" data-val="2">2</button>
+        <button class="num-btn" data-val="3">3</button>
+        <button class="num-btn" data-val="clear" style="color: var(--danger-red);">C</button>
+        
+        <button class="num-btn" data-val="4">4</button>
+        <button class="num-btn" data-val="5">5</button>
+        <button class="num-btn" data-val="6">6</button>
+        <button class="num-btn accent" data-val="/">/</button>
+        
+        <button class="num-btn" data-val="7">7</button>
+        <button class="num-btn" data-val="8">8</button>
+        <button class="num-btn" data-val="9">9</button>
+        <button class="num-btn accent" data-val="-">-</button>
+        
+        <button class="num-btn" data-val="backspace">⌫</button>
+        <button class="num-btn" data-val="0">0</button>
+        <button class="num-btn" data-val="" style="visibility: hidden;"></button>
+        <button class="num-btn" data-val="" style="visibility: hidden;"></button>
+      </div>
+
+      <div id="terminal-feedback" style="margin-top: 15px; font-weight: 700; min-height: 24px;"></div>
+
+      <button id="btn-close-terminal" class="sci-btn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #aaa; margin-top: 15px; width: 100%;">SAIR DO TERMINAL</button>
+    </div>
+  </div>
+
+  <!-- MODAL: Vitória Final -->
+  <div id="victory-modal" class="modal-overlay hidden">
+    <div class="modal-card" style="border-color: var(--accent-green); box-shadow: 0 0 50px rgba(0, 255, 136, 0.4);">
+      <h2 class="modal-title" style="color: var(--accent-green);">MISSION ACCOMPLISHED!</h2>
+      <p style="font-size: 1.2rem; margin: 15px 0; color: #fff;">Parabéns! Você decifrou todos os enigmas matemáticos e desbloqueou a Ponte de Comando da Nave Espacial!</p>
+      <button id="btn-restart-game" class="sci-btn orange" style="width: 100%; margin-top: 20px; font-size: 1.2rem; padding: 15px;">JOGAR NOVAMENTE</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
