@@ -52,57 +52,112 @@ class SoundManager {
 
 const sounds = new SoundManager();
 
-// --- GERADOR PROCEDURAL DE TEXTURA SCI-FI EM RUNTIME (Visual Metálico Refinado Aço Escovado) ---
+// --- GERADOR PROCEDURAL DE TEXTURA DE METAL SCI-FI ULTRA DETALHADA ---
+// Gera placas de metal realistas, rebites, juntas de painel e efeito de metal escovado
 function createProceduralTexture() {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 512;
   const ctx = canvas.getContext('2d');
 
-  // Cor base do aço escovado cinza metálico claro
-  ctx.fillStyle = '#7a8599';
+  // Cor base do aço de nave espacial (cinza chumbo industrial)
+  ctx.fillStyle = '#4b5366';
   ctx.fillRect(0, 0, 512, 512);
 
-  // Efeito de escovado (linhas horizontais de ruído metálico)
-  ctx.fillStyle = 'rgba(255,255,255,0.08)';
-  for (let i = 0; i < 300; i++) {
+  // Criar efeito escovado / textura de aço
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+  for (let i = 0; i < 400; i++) {
     const y = Math.random() * 512;
-    const h = Math.random() * 2 + 1;
+    const h = Math.random() * 3 + 1;
     ctx.fillRect(0, y, 512, h);
   }
-  ctx.fillStyle = 'rgba(0,0,0,0.1)';
-  for (let i = 0; i < 300; i++) {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+  for (let i = 0; i < 400; i++) {
     const y = Math.random() * 512;
-    const h = Math.random() * 2 + 1;
+    const h = Math.random() * 3 + 1;
     ctx.fillRect(0, y, 512, h);
   }
 
-  // Linhas divisórias das placas de aço da nave
-  ctx.strokeStyle = '#3e4554';
-  ctx.lineWidth = 8;
-  ctx.strokeRect(0, 0, 512, 512);
+  // Divisão em painéis retangulares de metal (placas verticais e horizontais)
+  ctx.lineWidth = 10;
+  ctx.strokeStyle = '#1e222b'; // ranhuras pretas profundas entre placas
   
-  // Sub-placas internas
-  ctx.strokeStyle = '#4e5669';
-  ctx.lineWidth = 4;
-  ctx.strokeRect(20, 20, 472, 472);
-  ctx.strokeRect(80, 80, 352, 352);
+  // Placas verticais principais
+  ctx.beginPath();
+  ctx.moveTo(128, 0); ctx.lineTo(128, 512);
+  ctx.moveTo(384, 0); ctx.lineTo(384, 512);
+  // Placas horizontais
+  ctx.moveTo(0, 256); ctx.lineTo(512, 256);
+  ctx.stroke();
 
-  // Detalhes de rebites e parafusos industriais
-  ctx.fillStyle = '#2d3340';
-  const boltPositions = [10, 502];
-  boltPositions.forEach(x => {
-    boltPositions.forEach(y => {
-      ctx.beginPath();
-      ctx.arc(x, y, 5, 0, Math.PI * 2);
-      ctx.fill();
-    });
+  // Efeito de chanfro 3D (sombra e brilho nas bordas de cada placa)
+  ctx.lineWidth = 3;
+  
+  // Bordas brilhantes (luz refletida)
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+  ctx.beginPath();
+  ctx.moveTo(0, 258); ctx.lineTo(512, 258);
+  ctx.moveTo(130, 0); ctx.lineTo(130, 512);
+  ctx.moveTo(386, 0); ctx.lineTo(386, 512);
+  ctx.stroke();
+
+  // Bordas escuras (sombras)
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
+  ctx.beginPath();
+  ctx.moveTo(0, 254); ctx.lineTo(512, 254);
+  ctx.moveTo(126, 0); ctx.lineTo(126, 512);
+  ctx.moveTo(382, 0); ctx.lineTo(382, 512);
+  ctx.stroke();
+
+  // Detalhes industriais adicionais: grelhas de ventilação no centro
+  ctx.fillStyle = '#1c1f26';
+  ctx.fillRect(160, 80, 192, 100);
+  
+  // Aberturas da grelha de ventilação
+  ctx.fillStyle = '#0f1115';
+  for (let y = 90; y < 170; y += 12) {
+    ctx.fillRect(170, y, 172, 6);
+  }
+
+  // Rebites circulares 3D (parafusos) nos cantos das placas
+  ctx.fillStyle = '#68748c'; // topo mais claro do rebite
+  ctx.strokeStyle = '#1e222b'; // borda escura do rebite
+  ctx.lineWidth = 1;
+  
+  const bolts = [
+    {x: 20, y: 20}, {x: 108, y: 20}, {x: 20, y: 236}, {x: 108, y: 236},
+    {x: 148, y: 20}, {x: 364, y: 20}, {x: 148, y: 236}, {x: 364, y: 236},
+    {x: 404, y: 20}, {x: 492, y: 20}, {x: 404, y: 236}, {x: 492, y: 236},
+    {x: 20, y: 276}, {x: 108, y: 276}, {x: 20, y: 492}, {x: 108, y: 492},
+    {x: 148, y: 276}, {x: 364, y: 276}, {x: 148, y: 492}, {x: 364, y: 492},
+    {x: 404, y: 276}, {x: 492, y: 276}, {x: 404, y: 492}, {x: 492, y: 492}
+  ];
+
+  bolts.forEach(b => {
+    // Sombra do parafuso
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath();
+    ctx.arc(b.x + 1, b.y + 1, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Corpo do parafuso
+    ctx.fillStyle = '#5c667a';
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Brilho do parafuso
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.beginPath();
+    ctx.arc(b.x - 1, b.y - 1, 1.5, 0, Math.PI * 2);
+    ctx.fill();
   });
 
   return new THREE.CanvasTexture(canvas);
 }
 
-// --- QUESTÕES EXATAS DE FRAÇÃO DA NOVA IMAGEM ---
+// --- QUESTÕES EXATAS DE FRAÇÃO ---
 const MathQuestions = [
   // Quarto 1: Adição de Frações
   [
@@ -154,13 +209,13 @@ const gameState = {
 let scene, camera, renderer;
 let playerPosition = new THREE.Vector3(0, 1.6, 25); 
 
-// ROTAÇÃO DE CÂMERA SUAVE COM LERP e sensibilidade reduzida
-let playerRotation = { yaw: 0, pitch: 0 };
-let targetRotation = { yaw: 0, pitch: 0 };
+// ROTAÇÃO APENAS PARA OS LADOS (Eixo horizontal Y / Yaw)
+let playerRotation = { yaw: 0 };
+let targetRotation = { yaw: 0 };
 
 let doorsList = [];
 let terminalsList = [];
-let obstaclesList = []; // Lista para colisão com caixotes e elementos cenográficos
+let obstaclesList = []; 
 let starParticles; 
 
 // Gerenciar Menu
@@ -258,10 +313,13 @@ function init3D() {
   const container = document.getElementById('canvas-container');
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x010205);
-  scene.fog = new THREE.FogExp2(0x010205, 0.02);
+  scene.fog = new THREE.FogExp2(0x010205, 0.025);
 
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.copy(playerPosition);
+  
+  // Setar ordem de rotação para evitar problemas estranhos de roll
+  camera.rotation.order = 'YXZ';
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -271,10 +329,10 @@ function init3D() {
   container.appendChild(renderer.domElement);
 
   // --- AMBIENTE E ILUMINAÇÃO BRANCA PURA SCI-FI ---
-  const ambientLight = new THREE.AmbientLight(0xffffff, 2.6); // Iluminação geral branca potente
+  const ambientLight = new THREE.AmbientLight(0xffffff, 2.6); 
   scene.add(ambientLight);
 
-  const mainLight = new THREE.DirectionalLight(0xffffff, 2.0); // Luz direcional branca brilhante do sol/estrela
+  const mainLight = new THREE.DirectionalLight(0xffffff, 2.0); 
   mainLight.position.set(10, 30, 20);
   scene.add(mainLight);
 
@@ -293,22 +351,24 @@ function buildSpaceshipMap() {
   metalTexture.wrapT = THREE.RepeatWrapping;
   metalTexture.repeat.set(1, 1);
 
-  // Material de Aço Escovado da Nave Altamente Reflexivo
+  // Material de Aço Escovado Sci-Fi de Alta Fidelidade (com relevo de bump)
   const wallMaterial = new THREE.MeshStandardMaterial({
     map: metalTexture,
-    metalness: 1.0,  // Metálico total
-    roughness: 0.1,  // Baixa rugosidade (altamente reflexivo)
-    color: 0xcccccc  // Cor cinza claro metálico
+    bumpMap: metalTexture, // Usa o mesmo canvas para criar relevo nos painéis e parafusos
+    bumpScale: 0.04,
+    metalness: 1.0,  
+    roughness: 0.1,  
+    color: 0xdddddd  
   });
 
   const floorMaterial = new THREE.MeshStandardMaterial({
-    color: 0x4a5568, // Chão cinza metálico
+    color: 0x4a5568, 
     metalness: 0.9,
     roughness: 0.15
   });
 
   const ceilingMaterial = new THREE.MeshStandardMaterial({
-    color: 0x2d3748, // Teto metálico escuro
+    color: 0x2d3748, 
     metalness: 0.9,
     roughness: 0.2
   });
@@ -328,7 +388,7 @@ function buildSpaceshipMap() {
   ceiling.position.set(0, corridorHeight, -30);
   scene.add(ceiling);
 
-  // Construir paredes laterais estruturadas com aberturas de janelas
+  // Construir paredes laterais com janelas
   const wallSegmentGeo = new THREE.PlaneGeometry(10, corridorHeight);
   
   for (let z = 25; z >= -85; z -= 15) {
@@ -420,7 +480,7 @@ function buildSpaceshipMap() {
     doorLight.position.set(0, corridorHeight - 0.5, posZ + 0.5);
     scene.add(doorLight);
 
-    // --- LUZ DE TETO BRANCA BRILHANTE PERTO DA PORTA ---
+    // Luz de teto branca
     const ceilingNeon = new THREE.PointLight(0xffffff, 2.2, 10);
     ceilingNeon.position.set(0, corridorHeight - 0.2, posZ + 4);
     scene.add(ceilingNeon);
@@ -461,7 +521,7 @@ function buildSpaceshipMap() {
   gameState.remotePlayerMesh.position.set(0, -100, 0);
   scene.add(gameState.remotePlayerMesh);
 
-  // --- ADICIONAR CAIXOTES SCI-FI E ELEMENTOS DE DECORAÇÃO NO MAPA ---
+  // Criar caixotes cenográficos
   createCrates(corridorWidth);
 }
 
@@ -469,17 +529,18 @@ function buildSpaceshipMap() {
 function createCrates(corridorWidth) {
   const crateMaterial = new THREE.MeshStandardMaterial({
     color: 0x5a6578,
+    bumpMap: createProceduralTexture(), // Aplica relevo também aos caixotes
+    bumpScale: 0.02,
     metalness: 0.9,
     roughness: 0.25
   });
 
   const detailMaterial = new THREE.MeshStandardMaterial({
-    color: 0xdd6b20, // Faixa laranja industrial nos caixotes
+    color: 0xdd6b20, 
     metalness: 0.5,
     roughness: 0.4
   });
 
-  // Posicionamento estratégico das caixas ao longo dos corredores nos cantos
   const cratePositions = [
     { x: -corridorWidth/2 + 0.9, z: 20, size: 0.8 },
     { x: corridorWidth/2 - 0.9, z: 10, size: 1.0 },
@@ -490,19 +551,16 @@ function createCrates(corridorWidth) {
     { x: -corridorWidth/2 + 0.8, z: -72, size: 1.0 }
   ];
 
-  cratePositions.forEach((pos, idx) => {
-    // Grupo do Caixote
+  cratePositions.forEach((pos) => {
     const crateGroup = new THREE.Group();
     crateGroup.position.set(pos.x, pos.size / 2, pos.z);
     
-    // Corpo principal do caixote (Cubo)
     const boxMesh = new THREE.Mesh(
       new THREE.BoxGeometry(pos.size, pos.size, pos.size),
       crateMaterial
     );
     crateGroup.add(boxMesh);
 
-    // Detalhe / faixa decorativa
     const stripeMesh = new THREE.Mesh(
       new THREE.BoxGeometry(pos.size * 1.02, pos.size * 0.15, pos.size * 1.02),
       detailMaterial
@@ -510,16 +568,14 @@ function createCrates(corridorWidth) {
     stripeMesh.position.y = 0;
     crateGroup.add(stripeMesh);
 
-    // Leve rotação aleatória para dar naturalidade
     crateGroup.rotation.y = (Math.random() - 0.5) * 0.3;
     
     scene.add(crateGroup);
 
-    // Salvar na lista de obstáculos para colisão física
     obstaclesList.push({
       x: pos.x,
       z: pos.z,
-      radius: pos.size * 0.7 // Raio aproximado de colisão
+      radius: pos.size * 0.7 
     });
   });
 }
@@ -548,7 +604,6 @@ function createOuterSpace() {
   starParticles = new THREE.Points(geometry, material);
   scene.add(starParticles);
 
-  // Planetas wireframe distantes
   const planetGeo = new THREE.SphereGeometry(12, 32, 32);
   const planetMat = new THREE.MeshBasicMaterial({ color: 0x4f46e5, wireframe: true });
   const planet = new THREE.Mesh(planetGeo, planetMat);
@@ -608,12 +663,10 @@ document.addEventListener('pointerlockchange', () => {
   isPointerLocked = (document.pointerLockElement === document.body);
 });
 
-// Atualização de olhar com sensibilidade reduzida
+// Atualização de olhar (APENAS PARA OS LADOS - eixo horizontal Yaw)
 document.addEventListener('mousemove', (e) => {
   if (isPointerLocked) {
-    targetRotation.yaw -= e.movementX * 0.0016; // Sensibilidade reduzida e confortável
-    targetRotation.pitch -= e.movementY * 0.0016;
-    targetRotation.pitch = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, targetRotation.pitch));
+    targetRotation.yaw -= e.movementX * 0.0016; // Confortável e sem movimentos verticais estranhos
   }
 });
 
@@ -623,11 +676,12 @@ function isModalOpen() {
          !document.getElementById('victory-modal').classList.contains('hidden');
 }
 
-// Movimentação do Jogador com Colisão de Caixotes e Portas
+// Movimentação do Jogador com Colisão
 function updatePlayerMovement(delta) {
   if (isModalOpen() || !gameState.isGameStarted) return;
 
   const speed = 5.2 * delta;
+  // O movimento para a frente e para trás é baseado apenas na direção horizontal Yaw
   const forward = new THREE.Vector3(-Math.sin(playerRotation.yaw), 0, -Math.cos(playerRotation.yaw));
   const right = new THREE.Vector3(Math.cos(playerRotation.yaw), 0, -Math.sin(playerRotation.yaw));
 
@@ -640,11 +694,9 @@ function updatePlayerMovement(delta) {
 
   const nextPos = playerPosition.clone().addScaledVector(moveDir, speed);
 
-  // 1. Limites físicos da Nave (Paredes Laterais)
   nextPos.x = Math.max(-2.4, Math.min(2.4, nextPos.x));
   nextPos.z = Math.max(-78, Math.min(28, nextPos.z));
 
-  // 2. Colisão física com Portas Fechadas
   let canMoveZ = true;
   doorsList.forEach(door => {
     if (!door.isUnlocked) {
@@ -654,10 +706,8 @@ function updatePlayerMovement(delta) {
     }
   });
 
-  // 3. Colisão física com Caixotes Cenográficos
   let canMoveObstacle = true;
   obstaclesList.forEach(obs => {
-    // Distância 2D (plano X/Z) entre jogador e a caixa
     const dx = nextPos.x - obs.x;
     const dz = nextPos.z - obs.z;
     const dist = Math.sqrt(dx * dx + dz * dz);
@@ -673,14 +723,12 @@ function updatePlayerMovement(delta) {
     playerPosition.x = nextPos.x;
   }
 
-  // Interpolação de Câmera Suave (Lerp)
+  // Interpolação do Yaw para câmera suave
   playerRotation.yaw += (targetRotation.yaw - playerRotation.yaw) * 0.15;
-  playerRotation.pitch += (targetRotation.pitch - playerRotation.pitch) * 0.15;
 
   camera.position.copy(playerPosition);
-  camera.rotation.set(0, 0, 0);
-  camera.rotation.y = playerRotation.yaw;
-  camera.rotation.x = playerRotation.pitch;
+  // Trava a rotação no eixo X (olhar para cima/baixo) e no Z (roll) para eliminar qualquer distorção
+  camera.rotation.set(0, playerRotation.yaw, 0); 
 
   if (gameState.conn && gameState.conn.open) {
     gameState.conn.send({
