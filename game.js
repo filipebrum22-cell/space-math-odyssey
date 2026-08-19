@@ -52,81 +52,87 @@ class SoundManager {
 
 const sounds = new SoundManager();
 
-// --- GERADOR PROCEDURAL DE TEXTURA SCI-FI EM RUNTIME (Visual Metálico Refinado) ---
+// --- GERADOR PROCEDURAL DE TEXTURA SCI-FI EM RUNTIME (Visual Metálico Refinado Aço Escovado) ---
 function createProceduralTexture() {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 512;
   const ctx = canvas.getContext('2d');
 
-  // Cor base do painel de metal escuro reflexivo
-  ctx.fillStyle = '#1b2336';
+  // Cor base do aço escovado cinza metálico claro
+  ctx.fillStyle = '#7a8599';
   ctx.fillRect(0, 0, 512, 512);
 
-  // Placas de metal / Bordas Sci-Fi
-  ctx.strokeStyle = '#2d3b59';
+  // Efeito de escovado (linhas horizontais de ruído metálico)
+  ctx.fillStyle = 'rgba(255,255,255,0.08)';
+  for (let i = 0; i < 300; i++) {
+    const y = Math.random() * 512;
+    const h = Math.random() * 2 + 1;
+    ctx.fillRect(0, y, 512, h);
+  }
+  ctx.fillStyle = 'rgba(0,0,0,0.1)';
+  for (let i = 0; i < 300; i++) {
+    const y = Math.random() * 512;
+    const h = Math.random() * 2 + 1;
+    ctx.fillRect(0, y, 512, h);
+  }
+
+  // Linhas divisórias das placas de aço da nave
+  ctx.strokeStyle = '#3e4554';
   ctx.lineWidth = 8;
   ctx.strokeRect(0, 0, 512, 512);
   
-  // Placas internas menores
-  ctx.strokeStyle = '#121824';
+  // Sub-placas internas
+  ctx.strokeStyle = '#4e5669';
   ctx.lineWidth = 4;
-  ctx.strokeRect(32, 32, 448, 448);
-  ctx.strokeRect(96, 96, 320, 320);
+  ctx.strokeRect(20, 20, 472, 472);
+  ctx.strokeRect(80, 80, 352, 352);
 
-  // Detalhes de parafusos
-  ctx.fillStyle = '#425885';
-  const boltPositions = [20, 492];
+  // Detalhes de rebites e parafusos industriais
+  ctx.fillStyle = '#2d3340';
+  const boltPositions = [10, 502];
   boltPositions.forEach(x => {
     boltPositions.forEach(y => {
       ctx.beginPath();
-      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
       ctx.fill();
     });
   });
 
-  // Linhas neon de alta tecnologia integradas na textura
-  ctx.strokeStyle = '#00f0ff';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(32, 256);
-  ctx.lineTo(480, 256);
-  ctx.stroke();
-
   return new THREE.CanvasTexture(canvas);
 }
 
-// --- QUESTÕES EXATAS DE FRAÇÃO DA IMAGEM ---
+// --- QUESTÕES EXATAS DE FRAÇÃO DA NOVA IMAGEM ---
 const MathQuestions = [
   // Quarto 1: Adição de Frações
   [
-    { q: "15/70 + 16/57 = ?", a: "395/798" },
-    { q: "37/57 + 18/24 = ?", a: "319/228" },
-    { q: "30/33 + 3/7 + 16/18 = ?", a: "1543/693" }
+    { q: "3/5 + 2/7 = ?", a: "31/35" },
+    { q: "4/9 + 3/8 = ?", a: "59/72" },
+    { q: "2/3 + 1/5 + 3/10 = ?", a: "7/6" }
   ],
   // Quarto 2: Subtração de Frações
   [
-    { q: "13/21 - 3/7 = ?", a: "4/21" },
-    { q: "15/36 - 17/22 = ?", a: "-47/132" },
-    { q: "50/67 - 37/40 = ?", a: "-479/2680" }
+    { q: "5/6 - 2/3 = ?", a: "1/6" },
+    { q: "3/4 - 5/6 = ?", a: "-1/12" },
+    { q: "-2/5 - 1/3 = ?", a: "-11/15" }
   ],
   // Quarto 3: Multiplicação de Frações
   [
-    { q: "83/88 x 3/8 x 7/8 = ?", a: "1743/5632" },
-    { q: "12/20 x 23/35 = ?", a: "69/175" },
-    { q: "47/71 x 78/85 = ?", a: "3666/6035" }
+    { q: "3/4 x 2/5 x 5/6 = ?", a: "1/4" },
+    { q: "3/5 x 4/7 = ?", a: "12/35" },
+    { q: "-2/3 x 3/8 = ?", a: "-1/4" }
   ],
   // Quarto 4: Divisão de Frações
   [
-    { q: "19/37 ÷ 7/36 = ?", a: "684/259" },
-    { q: "26/69 ÷ 50/64 = ?", a: "832/1725" },
-    { q: "74/80 ÷ 79/86 = ?", a: "1591/1580" }
+    { q: "3/5 ÷ 2/7 = ?", a: "21/10" },
+    { q: "-4/9 ÷ 2/3 = ?", a: "-2/3" },
+    { q: "5/8 ÷ (-3/4) = ?", a: "-5/6" }
   ],
   // Quarto 5: Desafios Mistos
   [
-    { q: "18/28 - (6/10 + 22/36) = ?", a: "-179/315" },
-    { q: "6/7 + 30/83 ÷ 33/77 = ?", a: "988/581" },
-    { q: "26/70 x 16/22 ÷ 27/57 = ?", a: "1976/3465" }
+    { q: "3/4 - (1/2 + 1/6) = ?", a: "1/12" },
+    { q: "2/3 + 3/5 ÷ 6/7 = ?", a: "41/30" },
+    { q: "-2/5 x 3/4 ÷ 1/2 = ?", a: "-3/5" }
   ]
 ];
 
@@ -147,10 +153,15 @@ const gameState = {
 // --- CONFIGURAÇÃO THREE.JS 3D ---
 let scene, camera, renderer;
 let playerPosition = new THREE.Vector3(0, 1.6, 25); 
+
+// ROTAÇÃO DE CÂMERA SUAVE COM LERP e sensibilidade reduzida
 let playerRotation = { yaw: 0, pitch: 0 };
+let targetRotation = { yaw: 0, pitch: 0 };
+
 let doorsList = [];
 let terminalsList = [];
-let starParticles; // Sistema de estrelas dinâmico
+let obstaclesList = []; // Lista para colisão com caixotes e elementos cenográficos
+let starParticles; 
 
 // Gerenciar Menu
 const btnSolo = document.getElementById('btn-mode-solo');
@@ -246,8 +257,8 @@ function enterGameWorld() {
 function init3D() {
   const container = document.getElementById('canvas-container');
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x010307);
-  scene.fog = new THREE.FogExp2(0x010307, 0.02);
+  scene.background = new THREE.Color(0x010205);
+  scene.fog = new THREE.FogExp2(0x010205, 0.02);
 
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.copy(playerPosition);
@@ -259,50 +270,47 @@ function init3D() {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   container.appendChild(renderer.domElement);
 
-  // --- AMBIENTE MAIS ILUMINADO E BRILHANTE ---
-  const ambientLight = new THREE.AmbientLight(0x425885, 2.2); // Intensidade e iluminação ambiente superior
+  // --- AMBIENTE E ILUMINAÇÃO BRANCA PURA SCI-FI ---
+  const ambientLight = new THREE.AmbientLight(0xffffff, 2.6); // Iluminação geral branca potente
   scene.add(ambientLight);
 
-  const mainLight = new THREE.DirectionalLight(0xffffff, 1.8); // Luz direcional potente branca
-  mainLight.position.set(10, 25, 20);
+  const mainLight = new THREE.DirectionalLight(0xffffff, 2.0); // Luz direcional branca brilhante do sol/estrela
+  mainLight.position.set(10, 30, 20);
   scene.add(mainLight);
 
-  const neonLightBlue = new THREE.DirectionalLight(0x00f0ff, 1.2); // Tons neon azuis reflexivos
-  neonLightBlue.position.set(-10, 5, -30);
-  scene.add(neonLightBlue);
-
   buildSpaceshipMap();
-  createOuterSpace(); // Espaço sideral e estrelas 3D
+  createOuterSpace(); 
 
   window.addEventListener('resize', onWindowResize);
 
   animate();
 }
 
-// Criar 5 Quartos Espaciais Consecutivos com Design de Metal Sci-Fi e Aberturas
+// Criar 5 Quartos com Design Metálico Aço Escovado, Luzes Brancas e Caixotes 3D
 function buildSpaceshipMap() {
   const metalTexture = createProceduralTexture();
   metalTexture.wrapS = THREE.RepeatWrapping;
   metalTexture.wrapT = THREE.RepeatWrapping;
   metalTexture.repeat.set(1, 1);
 
-  // Material de Metal da Nave Altamente Reflexivo
+  // Material de Aço Escovado da Nave Altamente Reflexivo
   const wallMaterial = new THREE.MeshStandardMaterial({
     map: metalTexture,
-    metalness: 0.95,
-    roughness: 0.15
+    metalness: 1.0,  // Metálico total
+    roughness: 0.1,  // Baixa rugosidade (altamente reflexivo)
+    color: 0xcccccc  // Cor cinza claro metálico
   });
 
   const floorMaterial = new THREE.MeshStandardMaterial({
-    color: 0x1f2c42,
+    color: 0x4a5568, // Chão cinza metálico
     metalness: 0.9,
-    roughness: 0.2
+    roughness: 0.15
   });
 
   const ceilingMaterial = new THREE.MeshStandardMaterial({
-    color: 0x0f1624,
-    metalness: 0.8,
-    roughness: 0.3
+    color: 0x2d3748, // Teto metálico escuro
+    metalness: 0.9,
+    roughness: 0.2
   });
 
   const corridorWidth = 6;
@@ -320,12 +328,10 @@ function buildSpaceshipMap() {
   ceiling.position.set(0, corridorHeight, -30);
   scene.add(ceiling);
 
-  // Construir paredes laterais estruturadas com vãos para as janelas
-  // Em vez de paredes inteiriças, criamos seções sólidas com aberturas de janelas
+  // Construir paredes laterais estruturadas com aberturas de janelas
   const wallSegmentGeo = new THREE.PlaneGeometry(10, corridorHeight);
   
   for (let z = 25; z >= -85; z -= 15) {
-    // Paredes Esquerda e Direita Sólidas
     const segLeft = new THREE.Mesh(wallSegmentGeo, wallMaterial);
     segLeft.rotation.y = Math.PI / 2;
     segLeft.position.set(-corridorWidth / 2, corridorHeight / 2, z);
@@ -336,16 +342,15 @@ function buildSpaceshipMap() {
     segRight.position.set(corridorWidth / 2, corridorHeight / 2, z);
     scene.add(segRight);
 
-    // Janelas transparentes localizadas entre as seções de paredes
     const winZ = z - 7.5;
     
-    // Vidro da Janela (Ciano semitransparente com alto brilho/reflexão)
+    // Vidro da Janela transparente
     const windowMat = new THREE.MeshStandardMaterial({
-      color: 0x00f0ff,
+      color: 0xe2f1ff,
       transparent: true,
-      opacity: 0.18,
-      metalness: 0.95,
-      roughness: 0.05
+      opacity: 0.25,
+      metalness: 0.98,
+      roughness: 0.02
     });
 
     const windowGeo = new THREE.PlaneGeometry(5, corridorHeight - 0.8);
@@ -361,11 +366,9 @@ function buildSpaceshipMap() {
     scene.add(winRight);
 
     // Moldura das Janelas (Aço escuro)
-    const frameMat = new THREE.MeshStandardMaterial({ color: 0x0a0f1d, metalness: 0.9 });
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0x1a202c, metalness: 0.95 });
     const topFrameGeo = new THREE.BoxGeometry(0.1, 0.2, 5);
-    const sideFrameGeo = new THREE.BoxGeometry(0.1, corridorHeight - 0.8, 0.2);
 
-    // Moldura Esquerda
     const frameLeftTop = new THREE.Mesh(topFrameGeo, frameMat);
     frameLeftTop.position.set(-corridorWidth / 2 + 0.01, corridorHeight - 0.4, winZ);
     scene.add(frameLeftTop);
@@ -374,7 +377,6 @@ function buildSpaceshipMap() {
     frameLeftBot.position.set(-corridorWidth / 2 + 0.01, 0.4, winZ);
     scene.add(frameLeftBot);
 
-    // Moldura Direita
     const frameRightTop = new THREE.Mesh(topFrameGeo, frameMat);
     frameRightTop.position.set(corridorWidth / 2 - 0.01, corridorHeight - 0.4, winZ);
     scene.add(frameRightTop);
@@ -400,26 +402,26 @@ function buildSpaceshipMap() {
 
     const doorLeft = new THREE.Mesh(
       new THREE.BoxGeometry(corridorWidth / 2, corridorHeight, 0.4),
-      new THREE.MeshStandardMaterial({ color: 0x22324f, metalness: 0.95, roughness: 0.1 })
+      new THREE.MeshStandardMaterial({ color: 0x4a5568, metalness: 0.95, roughness: 0.1 })
     );
     doorLeft.position.set(-corridorWidth / 4, corridorHeight / 2, 0);
 
     const doorRight = new THREE.Mesh(
       new THREE.BoxGeometry(corridorWidth / 2, corridorHeight, 0.4),
-      new THREE.MeshStandardMaterial({ color: 0x22324f, metalness: 0.95, roughness: 0.1 })
+      new THREE.MeshStandardMaterial({ color: 0x4a5568, metalness: 0.95, roughness: 0.1 })
     );
     doorRight.position.set(corridorWidth / 4, corridorHeight / 2, 0);
 
     doorGroup.add(doorLeft, doorRight);
     scene.add(doorGroup);
 
-    // Luz da Porta (Neon Vermelho trancado)
-    const doorLight = new THREE.PointLight(0xff2a5f, 2.2, 8);
+    // Luz de status da porta (Vermelho/Verde)
+    const doorLight = new THREE.PointLight(0xff2a5f, 2.0, 6);
     doorLight.position.set(0, corridorHeight - 0.5, posZ + 0.5);
     scene.add(doorLight);
 
-    // Adicionar luminárias de teto perto de cada porta para maior iluminação
-    const ceilingNeon = new THREE.PointLight(0x00f0ff, 1.8, 10);
+    // --- LUZ DE TETO BRANCA BRILHANTE PERTO DA PORTA ---
+    const ceilingNeon = new THREE.PointLight(0xffffff, 2.2, 10);
     ceilingNeon.position.set(0, corridorHeight - 0.2, posZ + 4);
     scene.add(ceilingNeon);
 
@@ -437,7 +439,7 @@ function buildSpaceshipMap() {
     const terminalMat = new THREE.MeshStandardMaterial({
       color: 0x00f0ff,
       emissive: 0x0088ff,
-      emissiveIntensity: 0.8,
+      emissiveIntensity: 0.7,
       roughness: 0.05
     });
     const terminalMesh = new THREE.Mesh(terminalGeo, terminalMat);
@@ -458,20 +460,80 @@ function buildSpaceshipMap() {
   gameState.remotePlayerMesh = new THREE.Mesh(avatarGeo, avatarMat);
   gameState.remotePlayerMesh.position.set(0, -100, 0);
   scene.add(gameState.remotePlayerMesh);
+
+  // --- ADICIONAR CAIXOTES SCI-FI E ELEMENTOS DE DECORAÇÃO NO MAPA ---
+  createCrates(corridorWidth);
 }
 
-// --- CRIAR ESPAÇO SIDERAL DINÂMICO DO LADO DE FORA ---
+// Criação e distribuição de caixotes/crates 3D na nave
+function createCrates(corridorWidth) {
+  const crateMaterial = new THREE.MeshStandardMaterial({
+    color: 0x5a6578,
+    metalness: 0.9,
+    roughness: 0.25
+  });
+
+  const detailMaterial = new THREE.MeshStandardMaterial({
+    color: 0xdd6b20, // Faixa laranja industrial nos caixotes
+    metalness: 0.5,
+    roughness: 0.4
+  });
+
+  // Posicionamento estratégico das caixas ao longo dos corredores nos cantos
+  const cratePositions = [
+    { x: -corridorWidth/2 + 0.9, z: 20, size: 0.8 },
+    { x: corridorWidth/2 - 0.9, z: 10, size: 1.0 },
+    { x: -corridorWidth/2 + 1.0, z: -12, size: 1.2 },
+    { x: corridorWidth/2 - 0.9, z: -20, size: 0.7 },
+    { x: -corridorWidth/2 + 0.9, z: -35, size: 1.1 },
+    { x: corridorWidth/2 - 0.9, z: -55, size: 0.9 },
+    { x: -corridorWidth/2 + 0.8, z: -72, size: 1.0 }
+  ];
+
+  cratePositions.forEach((pos, idx) => {
+    // Grupo do Caixote
+    const crateGroup = new THREE.Group();
+    crateGroup.position.set(pos.x, pos.size / 2, pos.z);
+    
+    // Corpo principal do caixote (Cubo)
+    const boxMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(pos.size, pos.size, pos.size),
+      crateMaterial
+    );
+    crateGroup.add(boxMesh);
+
+    // Detalhe / faixa decorativa
+    const stripeMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(pos.size * 1.02, pos.size * 0.15, pos.size * 1.02),
+      detailMaterial
+    );
+    stripeMesh.position.y = 0;
+    crateGroup.add(stripeMesh);
+
+    // Leve rotação aleatória para dar naturalidade
+    crateGroup.rotation.y = (Math.random() - 0.5) * 0.3;
+    
+    scene.add(crateGroup);
+
+    // Salvar na lista de obstáculos para colisão física
+    obstaclesList.push({
+      x: pos.x,
+      z: pos.z,
+      radius: pos.size * 0.7 // Raio aproximado de colisão
+    });
+  });
+}
+
+// --- CRIAR ESPAÇO SIDERAL DINÂMICO ---
 function createOuterSpace() {
   const particleCount = 2000;
   const geometry = new THREE.BufferGeometry();
   const positions = new Float32Array(particleCount * 3);
 
-  // Dispersar partículas de estrelas ao redor da nave espacial
   for (let i = 0; i < particleCount * 3; i += 3) {
-    // Afastados lateralmente da nave (X > 5 ou X < -5)
     positions[i] = (Math.random() - 0.5) * 160 + (Math.random() > 0.5 ? 15 : -15); 
     positions[i + 1] = (Math.random() - 0.5) * 100;
-    positions[i + 2] = (Math.random() - 0.5) * 200 - 30; // Ao longo do corredor
+    positions[i + 2] = (Math.random() - 0.5) * 200 - 30; 
   }
 
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -486,28 +548,27 @@ function createOuterSpace() {
   starParticles = new THREE.Points(geometry, material);
   scene.add(starParticles);
 
-  // Adicionar Planeta gigante flutuando ao longe
+  // Planetas wireframe distantes
   const planetGeo = new THREE.SphereGeometry(12, 32, 32);
-  const planetMat = new THREE.MeshBasicMaterial({ color: 0x3d0066, wireframe: true });
+  const planetMat = new THREE.MeshBasicMaterial({ color: 0x4f46e5, wireframe: true });
   const planet = new THREE.Mesh(planetGeo, planetMat);
   planet.position.set(40, 10, -50);
   scene.add(planet);
 
   const planet2Geo = new THREE.SphereGeometry(6, 32, 32);
-  const planet2Mat = new THREE.MeshBasicMaterial({ color: 0x003366, wireframe: true });
+  const planet2Mat = new THREE.MeshBasicMaterial({ color: 0x0ea5e9, wireframe: true });
   const planet2 = new THREE.Mesh(planet2Geo, planet2Mat);
   planet2.position.set(-45, -15, -30);
   scene.add(planet2);
 }
 
-// Mover estrelas para simular viagem espacial
 function animateOuterSpace() {
   if (starParticles) {
     const positions = starParticles.geometry.attributes.position.array;
     for (let i = 2; i < positions.length; i += 3) {
-      positions[i] += 0.25; // Velocidade da nave em direção às estrelas
+      positions[i] += 0.25; 
       if (positions[i] > 40) {
-        positions[i] = -160; // Volta para o fundo
+        positions[i] = -160; 
       }
     }
     starParticles.geometry.attributes.position.needsUpdate = true;
@@ -547,11 +608,12 @@ document.addEventListener('pointerlockchange', () => {
   isPointerLocked = (document.pointerLockElement === document.body);
 });
 
+// Atualização de olhar com sensibilidade reduzida
 document.addEventListener('mousemove', (e) => {
   if (isPointerLocked) {
-    playerRotation.yaw -= e.movementX * 0.0028;
-    playerRotation.pitch -= e.movementY * 0.0028;
-    playerRotation.pitch = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, playerRotation.pitch));
+    targetRotation.yaw -= e.movementX * 0.0016; // Sensibilidade reduzida e confortável
+    targetRotation.pitch -= e.movementY * 0.0016;
+    targetRotation.pitch = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, targetRotation.pitch));
   }
 });
 
@@ -561,6 +623,7 @@ function isModalOpen() {
          !document.getElementById('victory-modal').classList.contains('hidden');
 }
 
+// Movimentação do Jogador com Colisão de Caixotes e Portas
 function updatePlayerMovement(delta) {
   if (isModalOpen() || !gameState.isGameStarted) return;
 
@@ -577,9 +640,11 @@ function updatePlayerMovement(delta) {
 
   const nextPos = playerPosition.clone().addScaledVector(moveDir, speed);
 
+  // 1. Limites físicos da Nave (Paredes Laterais)
   nextPos.x = Math.max(-2.4, Math.min(2.4, nextPos.x));
   nextPos.z = Math.max(-78, Math.min(28, nextPos.z));
 
+  // 2. Colisão física com Portas Fechadas
   let canMoveZ = true;
   doorsList.forEach(door => {
     if (!door.isUnlocked) {
@@ -589,10 +654,28 @@ function updatePlayerMovement(delta) {
     }
   });
 
-  if (canMoveZ) {
+  // 3. Colisão física com Caixotes Cenográficos
+  let canMoveObstacle = true;
+  obstaclesList.forEach(obs => {
+    // Distância 2D (plano X/Z) entre jogador e a caixa
+    const dx = nextPos.x - obs.x;
+    const dz = nextPos.z - obs.z;
+    const dist = Math.sqrt(dx * dx + dz * dz);
+    if (dist < obs.radius) {
+      canMoveObstacle = false;
+    }
+  });
+
+  if (canMoveZ && canMoveObstacle) {
     playerPosition.z = nextPos.z;
   }
-  playerPosition.x = nextPos.x;
+  if (canMoveObstacle) {
+    playerPosition.x = nextPos.x;
+  }
+
+  // Interpolação de Câmera Suave (Lerp)
+  playerRotation.yaw += (targetRotation.yaw - playerRotation.yaw) * 0.15;
+  playerRotation.pitch += (targetRotation.pitch - playerRotation.pitch) * 0.15;
 
   camera.position.copy(playerPosition);
   camera.rotation.set(0, 0, 0);
@@ -771,7 +854,7 @@ function animate() {
   const delta = clock.getDelta();
 
   updatePlayerMovement(delta);
-  animateOuterSpace(); // Animação de estrelas correndo no espaço
+  animateOuterSpace(); 
   
   if (renderer && scene && camera) {
     renderer.render(scene, camera);
