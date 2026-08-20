@@ -52,108 +52,17 @@ class SoundManager {
 
 const sounds = new SoundManager();
 
-// --- GERADOR PROCEDURAL DE TEXTURA DE METAL SCI-FI ULTRA DETALHADA ---
-// Gera placas de metal realistas, rebites, juntas de painel e efeito de metal escovado
+// Textura procedural simplificada para caixotes (opcional)
 function createProceduralTexture() {
   const canvas = document.createElement('canvas');
-  canvas.width = 512;
-  canvas.height = 512;
+  canvas.width = 128;
+  canvas.height = 128;
   const ctx = canvas.getContext('2d');
-
-  // Cor base do aço de nave espacial (cinza chumbo industrial)
-  ctx.fillStyle = '#4b5366';
-  ctx.fillRect(0, 0, 512, 512);
-
-  // Criar efeito escovado / textura de aço
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-  for (let i = 0; i < 400; i++) {
-    const y = Math.random() * 512;
-    const h = Math.random() * 3 + 1;
-    ctx.fillRect(0, y, 512, h);
-  }
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
-  for (let i = 0; i < 400; i++) {
-    const y = Math.random() * 512;
-    const h = Math.random() * 3 + 1;
-    ctx.fillRect(0, y, 512, h);
-  }
-
-  // Divisão em painéis retangulares de metal (placas verticais e horizontais)
-  ctx.lineWidth = 10;
-  ctx.strokeStyle = '#1e222b'; // ranhuras pretas profundas entre placas
-  
-  // Placas verticais principais
-  ctx.beginPath();
-  ctx.moveTo(128, 0); ctx.lineTo(128, 512);
-  ctx.moveTo(384, 0); ctx.lineTo(384, 512);
-  // Placas horizontais
-  ctx.moveTo(0, 256); ctx.lineTo(512, 256);
-  ctx.stroke();
-
-  // Efeito de chanfro 3D (sombra e brilho nas bordas de cada placa)
-  ctx.lineWidth = 3;
-  
-  // Bordas brilhantes (luz refletida)
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-  ctx.beginPath();
-  ctx.moveTo(0, 258); ctx.lineTo(512, 258);
-  ctx.moveTo(130, 0); ctx.lineTo(130, 512);
-  ctx.moveTo(386, 0); ctx.lineTo(386, 512);
-  ctx.stroke();
-
-  // Bordas escuras (sombras)
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
-  ctx.beginPath();
-  ctx.moveTo(0, 254); ctx.lineTo(512, 254);
-  ctx.moveTo(126, 0); ctx.lineTo(126, 512);
-  ctx.moveTo(382, 0); ctx.lineTo(382, 512);
-  ctx.stroke();
-
-  // Detalhes industriais adicionais: grelhas de ventilação no centro
-  ctx.fillStyle = '#1c1f26';
-  ctx.fillRect(160, 80, 192, 100);
-  
-  // Aberturas da grelha de ventilação
-  ctx.fillStyle = '#0f1115';
-  for (let y = 90; y < 170; y += 12) {
-    ctx.fillRect(170, y, 172, 6);
-  }
-
-  // Rebites circulares 3D (parafusos) nos cantos das placas
-  ctx.fillStyle = '#68748c'; // topo mais claro do rebite
-  ctx.strokeStyle = '#1e222b'; // borda escura do rebite
-  ctx.lineWidth = 1;
-  
-  const bolts = [
-    {x: 20, y: 20}, {x: 108, y: 20}, {x: 20, y: 236}, {x: 108, y: 236},
-    {x: 148, y: 20}, {x: 364, y: 20}, {x: 148, y: 236}, {x: 364, y: 236},
-    {x: 404, y: 20}, {x: 492, y: 20}, {x: 404, y: 236}, {x: 492, y: 236},
-    {x: 20, y: 276}, {x: 108, y: 276}, {x: 20, y: 492}, {x: 108, y: 492},
-    {x: 148, y: 276}, {x: 364, y: 276}, {x: 148, y: 492}, {x: 364, y: 492},
-    {x: 404, y: 276}, {x: 492, y: 276}, {x: 404, y: 492}, {x: 492, y: 492}
-  ];
-
-  bolts.forEach(b => {
-    // Sombra do parafuso
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.beginPath();
-    ctx.arc(b.x + 1, b.y + 1, 5, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Corpo do parafuso
-    ctx.fillStyle = '#5c667a';
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, 4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    // Brilho do parafuso
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.beginPath();
-    ctx.arc(b.x - 1, b.y - 1, 1.5, 0, Math.PI * 2);
-    ctx.fill();
-  });
-
+  ctx.fillStyle = '#4b5563';
+  ctx.fillRect(0, 0, 128, 128);
+  ctx.strokeStyle = '#1f2937';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(0, 0, 128, 128);
   return new THREE.CanvasTexture(canvas);
 }
 
@@ -209,9 +118,9 @@ const gameState = {
 let scene, camera, renderer;
 let playerPosition = new THREE.Vector3(0, 1.6, 25); 
 
-// ROTAÇÃO APENAS PARA OS LADOS (Eixo horizontal Y / Yaw)
-let playerRotation = { yaw: 0 };
-let targetRotation = { yaw: 0 };
+// ROTAÇÃO DE CÂMERA NORMAL (Yaw para os lados, Pitch para cima e para baixo)
+let playerRotation = { yaw: 0, pitch: 0 };
+let targetRotation = { yaw: 0, pitch: 0 };
 
 let doorsList = [];
 let terminalsList = [];
@@ -318,7 +227,7 @@ function init3D() {
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.copy(playerPosition);
   
-  // Setar ordem de rotação para evitar problemas estranhos de roll
+  // Setar ordem de rotação para evitar problemas estranhos de roll (gimbal lock)
   camera.rotation.order = 'YXZ';
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -344,21 +253,13 @@ function init3D() {
   animate();
 }
 
-// Criar 5 Quartos com Design Metálico Aço Escovado, Luzes Brancas e Caixotes 3D
+// Criar 5 Quartos com Paredes Cinza Sólidas (Sem Textura), Luzes Brancas e Caixotes
 function buildSpaceshipMap() {
-  const metalTexture = createProceduralTexture();
-  metalTexture.wrapS = THREE.RepeatWrapping;
-  metalTexture.wrapT = THREE.RepeatWrapping;
-  metalTexture.repeat.set(1, 1);
-
-  // Material de Aço Escovado Sci-Fi de Alta Fidelidade (com relevo de bump)
+  // Material de Parede Cinza Sólido Reflexivo
   const wallMaterial = new THREE.MeshStandardMaterial({
-    map: metalTexture,
-    bumpMap: metalTexture, // Usa o mesmo canvas para criar relevo nos painéis e parafusos
-    bumpScale: 0.04,
-    metalness: 1.0,  
-    roughness: 0.1,  
-    color: 0xdddddd  
+    color: 0x888a99, // Cinza sólido suave de nave
+    metalness: 0.85,
+    roughness: 0.2
   });
 
   const floorMaterial = new THREE.MeshStandardMaterial({
@@ -525,11 +426,11 @@ function buildSpaceshipMap() {
   createCrates(corridorWidth);
 }
 
-// Criação e distribuição de caixotes/crates 3D na nave
+// Criação de caixotes com textura cinza simples
 function createCrates(corridorWidth) {
   const crateMaterial = new THREE.MeshStandardMaterial({
     color: 0x5a6578,
-    bumpMap: createProceduralTexture(), // Aplica relevo também aos caixotes
+    bumpMap: createProceduralTexture(), 
     bumpScale: 0.02,
     metalness: 0.9,
     roughness: 0.25
@@ -663,10 +564,13 @@ document.addEventListener('pointerlockchange', () => {
   isPointerLocked = (document.pointerLockElement === document.body);
 });
 
-// Atualização de olhar (APENAS PARA OS LADOS - eixo horizontal Yaw)
+// ROTAÇÃO SUAVE NORMAL DE CÂMERA (Yaw para os lados, Pitch para cima e para baixo de forma limpa)
 document.addEventListener('mousemove', (e) => {
   if (isPointerLocked) {
-    targetRotation.yaw -= e.movementX * 0.0016; // Confortável e sem movimentos verticais estranhos
+    targetRotation.yaw -= e.movementX * 0.0016; 
+    targetRotation.pitch -= e.movementY * 0.0016;
+    // Limita o pitch vertical para evitar rotações capotadas estranhas
+    targetRotation.pitch = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, targetRotation.pitch));
   }
 });
 
@@ -681,7 +585,7 @@ function updatePlayerMovement(delta) {
   if (isModalOpen() || !gameState.isGameStarted) return;
 
   const speed = 5.2 * delta;
-  // O movimento para a frente e para trás é baseado apenas na direção horizontal Yaw
+  // O movimento horizontal permanece nivelado no plano X/Z
   const forward = new THREE.Vector3(-Math.sin(playerRotation.yaw), 0, -Math.cos(playerRotation.yaw));
   const right = new THREE.Vector3(Math.cos(playerRotation.yaw), 0, -Math.sin(playerRotation.yaw));
 
@@ -723,12 +627,13 @@ function updatePlayerMovement(delta) {
     playerPosition.x = nextPos.x;
   }
 
-  // Interpolação do Yaw para câmera suave
+  // Interpolação suave normal para ambos os eixos
   playerRotation.yaw += (targetRotation.yaw - playerRotation.yaw) * 0.15;
+  playerRotation.pitch += (targetRotation.pitch - playerRotation.pitch) * 0.15;
 
   camera.position.copy(playerPosition);
-  // Trava a rotação no eixo X (olhar para cima/baixo) e no Z (roll) para eliminar qualquer distorção
-  camera.rotation.set(0, playerRotation.yaw, 0); 
+  // Aplica yaw (horizontal) e pitch (vertical), mantendo roll (eixo Z) estritamente travado em 0
+  camera.rotation.set(playerRotation.pitch, playerRotation.yaw, 0); 
 
   if (gameState.conn && gameState.conn.open) {
     gameState.conn.send({
