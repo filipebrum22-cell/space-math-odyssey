@@ -16,8 +16,16 @@
     <div class="stars-bg"></div>
     <div class="config-card">
       <h1 class="config-title">🚀 SPACE MATH ODYSSEY</h1>
-      <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem; margin-bottom: 10px;">Configure seu astronauta e modo de jogo antes da decolagem!</p>
+      <p style="color: rgba(255,255,255,0.7); font-size: 1.1rem; margin-bottom: 5px;">Configure seu astronauta e modo de jogo antes da decolagem!</p>
       
+      <!-- CRÉDITOS DOS PRODUTORES EM DESTAQUE -->
+      <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--border-cyan); border-radius: 8px; padding: 10px 15px; margin-bottom: 15px; text-align: center;">
+        <p style="font-family: var(--font-title); font-size: 0.8rem; color: var(--primary-cyan); letter-spacing: 1px; text-transform: uppercase;">PRODUZIDO POR:</p>
+        <p style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-top: 3px; line-height: 1.4;">
+          GABRIEL DE FREITAS BRUM, ARTUR AMARAL ALMEIDA E VICENTE CARVALHO EVANGELISTA
+        </p>
+      </div>
+
       <!-- Escolha de Apelido -->
       <div style="text-align: left;">
         <label style="font-family: var(--font-title); font-size: 0.9rem; color: var(--primary-cyan); display: block; margin-bottom: 6px;">NOME DO ASTRONAUTA:</label>
@@ -54,7 +62,7 @@
       </div>
 
       <!-- Botão Iniciar Missão -->
-      <button id="btn-start-mission" class="sci-btn" style="padding: 15px; font-size: 1.3rem; margin-top: 15px; background: linear-gradient(135deg, var(--accent-orange), #ff2200); color: #fff;">INICIAR MISSÃO</button>
+      <button id="btn-start-mission" class="sci-btn" style="padding: 15px; font-size: 1.3rem; margin-top: 10px; background: linear-gradient(135deg, var(--accent-orange), #ff2200); color: #fff;">INICIAR MISSÃO</button>
     </div>
   </div>
 
@@ -105,12 +113,11 @@
       </div>
 
       <div class="answer-input-group">
-        <!-- Input de Texto para aceitar frações com barra '/' e negativos '-' -->
         <input type="text" id="math-answer-input" class="sci-input" placeholder="SUA RESPOSTA (ex: 395/798)" autofocus>
         <button id="btn-submit-answer" class="sci-btn orange">ENVIAR</button>
       </div>
 
-      <!-- Teclado Numérico Sci-Fi com suporte a Fração e Negativo -->
+      <!-- Teclado Numérico Sci-Fi -->
       <div class="numpad-grid">
         <button class="num-btn" data-val="1">1</button>
         <button class="num-btn" data-val="2">2</button>
@@ -139,12 +146,17 @@
     </div>
   </div>
 
-  <!-- MODAL: Vitória Final -->
+  <!-- MODAL: Vitória Final com Comando de Volta para a Terra -->
   <div id="victory-modal" class="modal-overlay hidden">
     <div class="modal-card" style="border-color: var(--accent-green); box-shadow: 0 0 50px rgba(0, 255, 136, 0.4);">
       <h2 class="modal-title" style="color: var(--accent-green);">MISSION ACCOMPLISHED!</h2>
-      <p style="font-size: 1.2rem; margin: 15px 0; color: #fff;">Parabéns! Você decifrou todos os enigmas matemáticos e desbloqueou a Ponte de Comando da Nave Espacial!</p>
-      <button id="btn-restart-game" class="sci-btn orange" style="width: 100%; margin-top: 20px; font-size: 1.2rem; padding: 15px;">JOGAR NOVAMENTE</button>
+      <p style="font-size: 1.2rem; margin: 15px 0; color: #fff;">
+        Parabéns! Você decifrou todos os enigmas matemáticos e desbloqueou a Ponte de Comando da Nave Espacial!
+      </p>
+      <p style="font-size: 1.1rem; color: var(--primary-cyan); font-weight: 700; margin-top: 10px; text-transform: uppercase;">
+        Você agora poderá comandar a nave e voltar para a Terra.
+      </p>
+      <button id="btn-restart-game" class="sci-btn orange" style="width: 100%; margin-top: 25px; font-size: 1.2rem; padding: 15px;">JOGAR NOVAMENTE</button>
     </div>
   </div>
 
